@@ -163,7 +163,12 @@ if ($service == "users" and $mac != "") {
     exit;
 }
 
-header('Location: ../index.php?tab=0');
-//header('Location: ../../action.php?page=captive');
+if ($page == "status") {
+    header('Location: ../../../action.php');
+} else {
+    header('Location: ../../action.php?page=captive');
+}
+
+//header('Location: ../index.php?tab=0');
 
 ?>
