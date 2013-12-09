@@ -88,10 +88,31 @@ if($service == "captive") {
         $exec = "echo '1' > /proc/sys/net/ipv4/ip_forward";
         exec("$bin_danger \"$exec\"" );
         
+        // INCLUDE INDEX
+        $exec = "grep 'FruityWifi-Phishing' /var/www/index.php";
+        $isphishingup = exec($exec);
+        if ($isphishingup  != "") {
+            $exec = "sed -i '/FruityWifi-Phishing/d' /var/www/index.php";
+            exec("$bin_danger \"$exec\"" );
+        
+            $exec = "sed -i 1i'<? include \\\"site\/index.php\\\"; \/\* FruityWifi-Phishing \*\/ ?>' /var/www/index.php";
+            exec("$bin_danger \"$exec\"" );
+            
+            $exec = "sed -i 1i'<? header(\\\"Location: site\/captive\/index.php\\\"); exit; \/\* FruityWifi-Captive \*\/ ?>' /var/www/index.php";
+            exec("$bin_danger \"$exec\"" );
+        } else {
+            $exec = "sed -i 1i'<? header(\\\"Location: site\/captive\/index.php\\\"); exit; \/\* FruityWifi-Captive \*\/ ?>' /var/www/index.php";
+            exec("$bin_danger \"$exec\"" );
+        }
+
         
     } else if($action == "stop") {
         // STOP MODULE
-                
+
+        // REMOVE INCLUDE
+        $exec = "sed -i '/FruityWifi-Captive/d' /var/www/index.php";
+        exec("$bin_danger \"$exec\"" );
+
         # Send all HTTP traffic from WIFI to the newly created chain for further processing
         $exec = "$bin_iptables -t mangle -D PREROUTING -i $iface_wifi -p tcp -m tcp --dport 80 -j internet";
         exec("$bin_danger \"$exec\"" );
