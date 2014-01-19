@@ -39,12 +39,14 @@ if ($regex == 1) {
     regex_standard($_GET["page"], "../msg.php", $regex_extra);
     regex_standard($iface_wifi, "../msg.php", $regex_extra);
     regex_standard($_GET["mac"], "../msg.php", $regex_extra);
+	regex_standard($_GET["install"], "../msg.php", $regex_extra);
 }
 
 $service = $_GET['service'];
 $action = $_GET['action'];
 $page = $_GET['page'];
 $mac =  strtoupper($_GET['mac']);
+$install = $_GET['install'];
 
 if($service == "captive") {
     
@@ -181,6 +183,18 @@ if ($service == "users" and $mac != "") {
 	} 
     
     header('Location: ../index.php?tab=1');
+    exit;
+}
+
+if ($install == "install_captive") {
+
+    $exec = "$bin_chmod 755 install.sh";
+    exec("$bin_danger \"$exec\"" );
+
+    $exec = "$bin_sudo ./install.sh > /usr/share/FruityWifi/logs/install.txt &";
+    exec("$bin_danger \"$exec\"" );
+
+    header('Location: ../../install.php?module=captive');
     exit;
 }
 

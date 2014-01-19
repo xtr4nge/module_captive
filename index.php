@@ -90,7 +90,8 @@ include "includes/options_config.php";
     if (file_exists($bin_conntrack)) { 
         echo "conntrack <font style='color:lime'>installed</font><br>";
     } else {
-        echo "conntrack <font style='color:red'>install</font><br>";
+        //echo "conntrack <font style='color:red'>install</font><br>";
+		echo "conntrack <a href='includes/module_action.php?install=install_captive' style='color:red'>install</a><br>";
     } 
     ?>
     <? 
