@@ -1,6 +1,6 @@
 <?
 $mod_name="captive";
-$mod_version="1.1";
+$mod_version="1.2";
 $mod_logs="/usr/share/FruityWifi/logs/captive.log"; 
 $mod_logs_history="/usr/share/FruityWifi/www/modules/captive/includes/logs/";
 $mod_path="/usr/share/FruityWifi/www/modules/captive";
@@ -9,6 +9,7 @@ $mod_isup="/usr/share/FruityWifi/bin/danger \"/sbin/iptables -t mangle -L|grep -
 $mod_alias="Captive";
 # EXEC
 $bin_danger = "/usr/share/FruityWifi/bin/danger";
+$bin_sudo = "/usr/bin/sudo";
 $bin_iptables = "/sbin/iptables";
 $bin_awk = "/usr/bin/awk";
 $bin_grep = "/bin/grep";
