@@ -1,19 +1,19 @@
 <? 
 /*
-	Copyright (C) 2013  xtr4nge [_AT_] gmail.com
+    Copyright (C) 2013-2014  xtr4nge [_AT_] gmail.com
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */ 
 ?>
 <!DOCTYPE HTML>
@@ -46,6 +46,7 @@ $(function() {
 
 include "_info_.php";
 include "../../config/config.php";
+include "../../login_check.php";
 include "../../functions.php";
 
 //$bin_danger = "/usr/share/FruityWifi/bin/danger";
@@ -158,13 +159,13 @@ Loading, please wait...
         
         <!-- USERS -->
         
-        <div id="result-2">
+        <div id="result-2" class="module-options">
             <form action="index.php" method="GET">
                 <input type="hidden" name="tab" value="1">
                 <input type="submit" value="refresh">
             </form>
             <br><br>
-            <div class="module" style="background-color:#000; border:1px dashed; padding:5px">
+            <div class="module-options" s-tyle="background-color:#000; border:1px dashed; padding:5px">
             <?
             
             //$filename = "/var/www/site/captive/admin/users";
@@ -208,12 +209,12 @@ Loading, please wait...
         
         <!-- OPTIONS -->
 
-        <div id="result-3">
+        <div id="result-3" class="module-options">
             <form id="formInject" name="formInject" method="POST" autocomplete="off" action="includes/save.php">
             <input type="submit" value="save">
             <br><br>
             
-            <div class="module" style="background-color:#000; border:1px dashed;">
+            <div class="module-options" s-tyle="background-color:#000; border:1px dashed;">
             <table>
                 <!-- // OPTION validate Name --> 
                 <tr>
@@ -246,7 +247,7 @@ Loading, please wait...
 
         <!-- HISTORY -->
 
-        <div id="result-4">
+        <div id="result-4" class="history">
             <input type="submit" value="refresh">
             <br><br>
             

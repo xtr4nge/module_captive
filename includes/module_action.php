@@ -37,7 +37,7 @@ if ($regex == 1) {
     regex_standard($_GET["service"], "../msg.php", $regex_extra);
     regex_standard($_GET["action"], "../msg.php", $regex_extra);
     regex_standard($_GET["page"], "../msg.php", $regex_extra);
-    regex_standard($iface_wifi, "../msg.php", $regex_extra);
+    regex_standard($io_action, "../msg.php", $regex_extra);
     regex_standard($_GET["mac"], "../msg.php", $regex_extra);
 	regex_standard($_GET["install"], "../msg.php", $regex_extra);
 }
@@ -63,7 +63,7 @@ if($service == "captive") {
         }
         
         # Masquerade any incoming packet on the firewall
-        $exec = "$bin_iptables -A POSTROUTING -t nat -o $iface_internet -j MASQUERADE";
+        $exec = "$bin_iptables -A POSTROUTING -t nat -o $io_out_iface -j MASQUERADE";
         exec("$bin_danger \"$exec\"" );
         
         # Create a new chain named 'internet' in mangle table with this command
@@ -71,9 +71,9 @@ if($service == "captive") {
         exec("$bin_danger \"$exec\"" );
         
         # Send all HTTP traffic from WIFI to the newly created chain for further processing
-        $exec = "$bin_iptables -t mangle -A PREROUTING -i $iface_wifi -p tcp -m tcp --dport 80 -j internet";
+        $exec = "$bin_iptables -t mangle -A PREROUTING -i $io_action -p tcp -m tcp --dport 80 -j internet";
         exec("$bin_danger \"$exec\"" );
-        $exec = "$bin_iptables -t mangle -A PREROUTING -i $iface_wifi -p tcp -m tcp --dport 443 -j internet";
+        $exec = "$bin_iptables -t mangle -A PREROUTING -i $io_action -p tcp -m tcp --dport 443 -j internet";
         exec("$bin_danger \"$exec\"" );
         
         # Mark all traffic from internet chain with 99
@@ -81,9 +81,9 @@ if($service == "captive") {
         exec("$bin_danger \"$exec\"" );
         
         # Redirect all marked traffic to the portal 
-        $exec = "$bin_iptables -t nat -A PREROUTING -i $iface_wifi -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination 10.0.0.1";
+        $exec = "$bin_iptables -t nat -A PREROUTING -i $io_action -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination $io_in_ip";
         exec("$bin_danger \"$exec\"" );
-        $exec = "$bin_iptables -t nat -A PREROUTING -i $iface_wifi -p tcp -m mark --mark 99 -m tcp --dport 443 -j DNAT --to-destination 10.0.0.1";
+        $exec = "$bin_iptables -t nat -A PREROUTING -i $io_action -p tcp -m mark --mark 99 -m tcp --dport 443 -j DNAT --to-destination $io_in_ip";
         exec("$bin_danger \"$exec\"" );
 
         # FORWARD
@@ -116,9 +116,9 @@ if($service == "captive") {
         exec("$bin_danger \"$exec\"" );
 
         # Send all HTTP traffic from WIFI to the newly created chain for further processing
-        $exec = "$bin_iptables -t mangle -D PREROUTING -i $iface_wifi -p tcp -m tcp --dport 80 -j internet";
+        $exec = "$bin_iptables -t mangle -D PREROUTING -i $io_action -p tcp -m tcp --dport 80 -j internet";
         exec("$bin_danger \"$exec\"" );
-        $exec = "$bin_iptables -t mangle -D PREROUTING -i $iface_wifi -p tcp -m tcp --dport 443 -j internet";
+        $exec = "$bin_iptables -t mangle -D PREROUTING -i $io_action -p tcp -m tcp --dport 443 -j internet";
         exec("$bin_danger \"$exec\"" );
         
         # Mark all traffic from internet chain with 99
@@ -126,9 +126,9 @@ if($service == "captive") {
         exec("$bin_danger \"$exec\"" );
         
         # Redirect all marked traffic to the portal 
-        $exec = "$bin_iptables -t nat -D PREROUTING -i $iface_wifi -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination 10.0.0.1";
+        $exec = "$bin_iptables -t nat -D PREROUTING -i $io_action -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination $io_in_ip";
         exec("$bin_danger \"$exec\"" );
-        $exec = "$bin_iptables -t nat -D PREROUTING -i $iface_wifi -p tcp -m mark --mark 99 -m tcp --dport 443 -j DNAT --to-destination 10.0.0.1";
+        $exec = "$bin_iptables -t nat -D PREROUTING -i $io_action -p tcp -m mark --mark 99 -m tcp --dport 443 -j DNAT --to-destination $io_in_ip";
         exec("$bin_danger \"$exec\"" );
         
         // DELETE ALLOWED MAC RULES
