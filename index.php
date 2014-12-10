@@ -43,9 +43,8 @@ $(function() {
 <br>
 
 <?
-
-include "_info_.php";
 include "../../config/config.php";
+include "_info_.php";
 include "../../login_check.php";
 include "../../functions.php";
 
@@ -69,14 +68,16 @@ $service = $_POST["service"];
 // DELETE LOG
 if ($logfile != "" and $action == "delete") {
     $exec = "rm ".$mod_logs_history.$logfile.".log";
-    exec("$bin_danger \"$exec\"", $dump);
+    //exec("$bin_danger \"$exec\"", $dump); //DEPRECATED
+    exec_fruitywifi($exec);
 }
 
 // SET MODE
 if ($_POST["change_mode"] == "1") {
     $ss_mode = $service;
     $exec = "/bin/sed -i 's/ss_mode.*/ss_mode = \\\"".$ss_mode."\\\";/g' includes/options_config.php";
-    exec("$bin_danger \"$exec\"", $output);
+    //exec("$bin_danger \"$exec\"", $output); //DEPRECATED
+    exec_fruitywifi($exec);
 }
 
 include "includes/options_config.php";
@@ -92,7 +93,7 @@ include "includes/options_config.php";
         echo "conntrack <font style='color:lime'>installed</font><br>";
     } else {
         //echo "conntrack <font style='color:red'>install</font><br>";
-		echo "conntrack <a href='includes/module_action.php?install=install_captive' style='color:red'>install</a><br>";
+	echo "conntrack <a href='includes/module_action.php?install=install_captive' style='color:red'>install</a><br>";
     } 
     ?>
     <? 
@@ -105,7 +106,8 @@ include "includes/options_config.php";
     
     <?
     $exec = "$bin_iptables -t mangle -L|grep -iEe 'internet.+anywhere'";
-    $ismoduleup = exec("$bin_danger \"$exec\"" );
+    //$ismoduleup = exec("$bin_danger \"$exec\"" ); //DEPRECATED
+    $ismoduleup = exec_fruitywifi($exec);
     //$ismoduleup = exec("ps auxww | grep ngrep | grep -v -e 'grep ngrep'");
     if ($ismoduleup != "") {
         echo "&nbsp; Captive  <font color=\"lime\"><b>enabled</b></font>.&nbsp; | <a href=\"includes/module_action.php?service=captive&action=stop&page=module\"><b>stop</b></a>";
@@ -118,13 +120,11 @@ include "includes/options_config.php";
 
 <br>
 
-
 <div id="msg" style="font-size:largest;">
 Loading, please wait...
 </div>
 
 <div id="body" style="display:none;">
-
 
     <div id="result" class="module">
         <ul>
@@ -172,7 +172,8 @@ Loading, please wait...
             $filename = $file_users;
             
             $exec = "$bin_cat $filename";
-            exec("$bin_danger \"$exec\"", $output);
+            //exec("$bin_danger \"$exec\"", $output); //DEPRECATED
+	    $output = exec_fruitywifi($exec);
             ?>
             
             <table border='0'>

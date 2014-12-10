@@ -1,14 +1,14 @@
 <?
 $mod_name="captive";
-$mod_version="1.3";
-$mod_logs="/usr/share/FruityWifi/logs/captive.log"; 
-$mod_logs_history="/usr/share/FruityWifi/www/modules/captive/includes/logs/";
-$mod_path="/usr/share/FruityWifi/www/modules/captive";
+$mod_version="1.4";
+$mod_path="/usr/share/fruitywifi/www/modules/$mod_name";
+$mod_logs="$log_path/captive.log"; 
+$mod_logs_history="$mod_path/includes/logs/";
 $mod_panel="show";
-$mod_isup="/usr/share/FruityWifi/bin/danger \"/sbin/iptables -t mangle -L|grep -iEe 'internet.+anywhere'\"";
+$mod_isup="/usr/share/fruitywifi/bin/danger \"/sbin/iptables -t mangle -L|grep -iEe 'internet.+anywhere'\"";
 $mod_alias="Captive";
 # EXEC
-$bin_danger = "/usr/share/FruityWifi/bin/danger";
+$bin_danger = "/usr/share/fruitywifi/bin/danger";
 $bin_sudo = "/usr/bin/sudo";
 $bin_iptables = "/sbin/iptables";
 $bin_awk = "/usr/bin/awk";

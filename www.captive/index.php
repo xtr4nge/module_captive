@@ -1,19 +1,19 @@
 <? 
 /*
-	Copyright (C) 2013  xtr4nge [_AT_] gmail.com
+    Copyright (C) 2013  xtr4nge [_AT_] gmail.com
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */ 
 ?>
 <?
@@ -25,7 +25,8 @@ header("Cache-Control: no-store, no-cache, must-revalidate");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
-include "/usr/share/FruityWifi/www/modules/captive/includes/options_config.php";
+include "/usr/share/fruitywifi/www/modules/captive/includes/options_config.php";
+include "/usr/share/fruitywifi/www/functions.php";
 
 print_header($portal_name);
 
@@ -100,7 +101,7 @@ function validateForm() {
 
 <?php
 
-$exec_root = "/usr/share/FruityWifi/bin/danger";
+//$bin_exec = "/usr/share/FruityWifi/bin/danger"; //DEPRECATED
 //exec("$exec_root \"$exec\"");
 
 // capture their IP address
@@ -113,7 +114,9 @@ $arp = "/usr/sbin/arp";
 // execute the arp command to get their mac address
 $exec = "$arp -an " . $ip;
 //$mac = shell_exec("sudo $arp -an " . $ip);
-$mac = exec("$exec_root \"$exec\"");
+
+//$mac = exec("$bin_exec \"$exec\""); //DEPRECATED
+$mac = exec_fruitywifi($exec);
 
 preg_match('/..:..:..:..:..:../',$mac , $matches);
 $mac = @$matches[0];
