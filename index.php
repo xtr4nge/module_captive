@@ -44,8 +44,8 @@ $(function() {
 
 <?
 include "../../config/config.php";
-include "_info_.php";
 include "../../login_check.php";
+include "_info_.php";
 include "../../functions.php";
 
 //$bin_danger = "/usr/share/FruityWifi/bin/danger";
@@ -109,7 +109,7 @@ include "includes/options_config.php";
     //$ismoduleup = exec("$bin_danger \"$exec\"" ); //DEPRECATED
     $ismoduleup = exec_fruitywifi($exec);
     //$ismoduleup = exec("ps auxww | grep ngrep | grep -v -e 'grep ngrep'");
-    if ($ismoduleup != "") {
+    if ($ismoduleup[0] != "") {
         echo "&nbsp; Captive  <font color=\"lime\"><b>enabled</b></font>.&nbsp; | <a href=\"includes/module_action.php?service=captive&action=stop&page=module\"><b>stop</b></a>";
     } else { 
         echo "&nbsp; Captive  <font color=\"red\"><b>disabled</b></font>. | <a href=\"includes/module_action.php?service=captive&action=start&page=module\"><b>start</b></a>"; 

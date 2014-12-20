@@ -101,13 +101,18 @@ if($service == "captive") {
 	exec_fruitywifi($exec);
         
         // INCLUDE INDEX
+	if (!file_exists("/var/www/index.php")) {
+            $exec = "$bin_echo '.' >> /var/www/index.php";
+            exec_fruitywifi($exec);
+        }
+	
         $exec = "grep 'FruityWifi-Phishing' /var/www/index.php";
         $isphishingup = exec($exec);
         if ($isphishingup  != "") {
             $exec = "sed -i '/FruityWifi-Phishing/d' /var/www/index.php";
             //exec("$bin_danger \"$exec\"" ); //DEPRECATED
 	    exec_fruitywifi($exec);
-        
+	    
             $exec = "sed -i 1i'<? include \\\"site\/index.php\\\"; \/\* FruityWifi-Phishing \*\/ ?>' /var/www/index.php";
             //exec("$bin_danger \"$exec\"" ); //DEPRECATED
 	    exec_fruitywifi($exec);
@@ -184,7 +189,7 @@ if($service == "captive") {
 }
 
 if($service == "install_portal") {
-    $exec = "/bin/ln -s /usr/share/fruitywifi/www/modules/captive/www.captive /var/www/site/captive";
+    $exec = "/bin/ln -s $mod_path/www.captive /var/www/site/captive";
     //exec("$bin_danger \"$exec\""); //DEPRECATED
     exec_fruitywifi($exec);
 }
