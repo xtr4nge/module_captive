@@ -1,6 +1,6 @@
 <? 
 /*
-    Copyright (C) 2013-2014  xtr4nge [_AT_] gmail.com
+    Copyright (C) 2013-2015 xtr4nge [_AT_] gmail.com
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -44,11 +44,9 @@ $(function() {
 
 <?
 include "../../config/config.php";
-include "../../login_check.php";
 include "_info_.php";
+include "../../login_check.php";
 include "../../functions.php";
-
-//$bin_danger = "/usr/share/FruityWifi/bin/danger";
 
 // Checking POST & GET variables...
 if ($regex == 1) {
@@ -68,7 +66,6 @@ $service = $_POST["service"];
 // DELETE LOG
 if ($logfile != "" and $action == "delete") {
     $exec = "rm ".$mod_logs_history.$logfile.".log";
-    //exec("$bin_danger \"$exec\"", $dump); //DEPRECATED
     exec_fruitywifi($exec);
 }
 
@@ -76,7 +73,6 @@ if ($logfile != "" and $action == "delete") {
 if ($_POST["change_mode"] == "1") {
     $ss_mode = $service;
     $exec = "/bin/sed -i 's/ss_mode.*/ss_mode = \\\"".$ss_mode."\\\";/g' includes/options_config.php";
-    //exec("$bin_danger \"$exec\"", $output); //DEPRECATED
     exec_fruitywifi($exec);
 }
 
@@ -97,7 +93,8 @@ include "includes/options_config.php";
     } 
     ?>
     <? 
-    if (file_exists("/var/www/site/captive")) { 
+    //if (file_exists("/var/www/site/captive")) {
+	if (file_exists("/var/www/captive")) { 
         echo "&nbsp; Captive <font style='color:lime'>installed</font><br>";
     } else {
         echo "&nbsp; Captive <a href='includes/module_action.php?service=install_portal' style='color:red'>install</a><br>";
@@ -172,8 +169,7 @@ Loading, please wait...
             $filename = $file_users;
             
             $exec = "$bin_cat $filename";
-            //exec("$bin_danger \"$exec\"", $output); //DEPRECATED
-	    $output = exec_fruitywifi($exec);
+			$output = exec_fruitywifi($exec);
             ?>
             
             <table border='0'>
@@ -191,12 +187,12 @@ Loading, please wait...
                 if ($row[4] != "") {
             ?>
                 <tr>
-                    <td style="padding-right:5px"><a href="includes/module_action.php?service=users&action=delete&mac=<?=$row[3]?>">Delete</a></td>
-                    <td style="background-color:#222; padding-right:10px"><?=$row[0];?></td>
-                    <td style="background-color:#222; padding-right:10px"><?=$row[1];?></td>
-                    <td style="background-color:#222; padding-right:10px"><?=$row[2];?></td>
-                    <td style="background-color:#222; padding-right:10px"><?=$row[3];?></td>
-                    <td style="background-color:#222; padding-right:10px"><?=$row[4];?></td>
+                    <td style="padding-right:5px"><a style="color: #555" href="includes/module_action.php?service=users&action=delete&mac=<?=$row[3]?>">[x]</a></td>
+                    <td style="padding-right:10px"><?=$row[0];?></td>
+                    <td style="padding-right:10px"><?=$row[1];?></td>
+                    <td style="padding-right:10px"><?=$row[2];?></td>
+                    <td style="padding-right:10px"><?=$row[3];?></td>
+                    <td style="padding-right:10px"><?=$row[4];?></td>
                 </tr>
             <?  } 
             } 

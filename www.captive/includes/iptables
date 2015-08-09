@@ -1,8 +1,9 @@
 #!/bin/bash
 
 IPTABLES=/sbin/iptables
-IFACE_INTERNET="wlan0"
-IFACE_WIFI="wlan2"
+IFACE_INTERNET="eth0"
+IFACE_WIFI="wlan0"
+IFACE_IP="10.0.0.1"
 
 # FLUSH RULES
 #$IPTABLES -F
@@ -24,7 +25,7 @@ $IPTABLES -t mangle -A PREROUTING -i $IFACE_WIFI -p tcp -m tcp --dport 80 -j int
 $IPTABLES -t mangle -A internet -j MARK --set-mark 99
 
 # Redirect all marked traffic to the portal 
-$IPTABLES -t nat -A PREROUTING -i $IFACE_WIFI -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination 10.0.0.1
+$IPTABLES -t nat -A PREROUTING -i $IFACE_WIFI -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination $IFACE_IP
 
 
 

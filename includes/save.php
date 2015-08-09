@@ -1,6 +1,8 @@
 <?
+
 include "../../../config/config.php";
 include "../_info_.php";
+include "../../../login_check.php";
 include "../../../functions.php";
 
 include "options_config.php";

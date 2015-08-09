@@ -1,6 +1,6 @@
 <? 
 /*
-    Copyright (C) 2013-2014 xtr4nge [_AT_] gmail.com
+    Copyright (C) 2013-2015 xtr4nge [_AT_] gmail.com
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 <?php 
 include "/usr/share/fruitywifi/www/config/config.php";
 include "/usr/share/fruitywifi/www/modules/captive/_info_.php";
-
-//$bin_danger = "/usr/share/FruityWifi/bin/danger";
+//include "/usr/share/fruitywifi/www/login_check.php";
+include "/usr/share/fruitywifi/www/functions.php";
 
 if( isset( $_POST['ip'] ) && isset( $_POST['mac'] ) ) {
     $ip = htmlentities($_POST['ip']);
@@ -29,11 +29,9 @@ if( isset( $_POST['ip'] ) && isset( $_POST['mac'] ) ) {
     $email = htmlentities($_POST["email"]);
 
     $exec = "$bin_iptables -I internet 1 -t mangle -m mac --mac-source $mac -j RETURN";
-    //exec("$bin_danger \"$exec\""); //DEPRECATED
     exec_fruitywifi($exec);
  
     $exec = "includes/rmtrack " . $ip;
-    //exec("$bin_danger \"$exec\""); //DEPRECATED
     exec_fruitywifi($exec);
     sleep(1); // allowing rmtrack to be executed
     
@@ -42,12 +40,10 @@ if( isset( $_POST['ip'] ) && isset( $_POST['mac'] ) ) {
 
     // STORE USER
     $exec = "$bin_echo '$name|$email|$ip|$mac|".date("Y-m-d h:i:s")."' >> $file_users ";
-    //exec("$bin_danger \"$exec\""); //DEPRECATED
     exec_fruitywifi($exec);
     
     // ADD TO LOGS
     $exec = "$bin_echo 'NEW: $name|$email|$ip|$mac|".date("Y-m-d h:i:s")."' >> $mod_logs ";
-    //exec("$bin_danger \"$exec\""); //DEPRECATED
     exec_fruitywifi($exec);
 
     //print_r($_SERVER);
@@ -55,13 +51,13 @@ if( isset( $_POST['ip'] ) && isset( $_POST['mac'] ) ) {
 
     //header('Location: ' . $_SERVER["HTTP_ORIGIN"]);
     //header('Location: http://10.0.0.1/site/captive/welcome.php?site='.$_SERVER["HTTP_ORIGIN"]);
-    header('Location: http://10.0.0.1/site/captive/welcome.php');
-    exit;
+    //header("Location: http://$io_in_ip/site/captive/welcome.php");
+    header("Location: http://$io_in_ip/captive/welcome.php");
     //echo "User logged in.";
     exit;
 
 } else {
-    //echo "Access Denied"; 
+    echo "Access Denied"; 
     exit;
 }
 ?>

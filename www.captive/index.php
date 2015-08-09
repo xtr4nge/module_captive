@@ -1,6 +1,6 @@
 <? 
 /*
-    Copyright (C) 2013  xtr4nge [_AT_] gmail.com
+    Copyright (C) 2013-2015 xtr4nge [_AT_] gmail.com
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,8 +25,13 @@ header("Cache-Control: no-store, no-cache, must-revalidate");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
-include "/usr/share/fruitywifi/www/modules/captive/includes/options_config.php";
+include "/usr/share/fruitywifi/www/config/config.php";
+include "/usr/share/fruitywifi/www/modules/captive/_info_.php";
+//include "/usr/share/fruitywifi/www/login_check.php";
 include "/usr/share/fruitywifi/www/functions.php";
+
+//include "/usr/share/fruitywifi/www/modules/captive/includes/options_config.php";
+//include "/usr/share/fruitywifi/www/functions.php";
 
 print_header($portal_name);
 
@@ -114,13 +119,11 @@ $arp = "/usr/sbin/arp";
 // execute the arp command to get their mac address
 $exec = "$arp -an " . $ip;
 //$mac = shell_exec("sudo $arp -an " . $ip);
-
 //$mac = exec("$bin_exec \"$exec\""); //DEPRECATED
 $mac = exec_fruitywifi($exec);
 
-preg_match('/..:..:..:..:..:../',$mac , $matches);
+preg_match('/..:..:..:..:..:../',$mac[0] , $matches);
 $mac = @$matches[0];
-
 
 // if MAC Address couldn't be identified.
 if( $mac === NULL) { 
