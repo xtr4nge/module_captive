@@ -28,6 +28,18 @@ $newdata = base64_encode($newdata);
 $new_rename = $_POST["new_rename"];
 $new_rename_file = $_POST["new_rename_file"];
 
+if ($type == "inject") {
+    if ($newdata != "") { $newdata = ereg_replace(13,  "", $newdata);
+        $exec = "$bin_echo '$newdata' | base64 --decode > $mod_path/includes/inject.txt";
+        exec_fruitywifi($exec);
+        
+        $exec = "$bin_dos2unix $mod_path/includes/inject.txt";
+        exec_fruitywifi($exec);
+    }
+
+    header('Location: ../index.php?tab=3');
+    exit;
+}
 
 // ngrep options
 if ($type == "portal") {

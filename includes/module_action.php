@@ -49,6 +49,18 @@ $page = $_GET['page'];
 $mac =  strtoupper($_GET['mac']);
 $install = $_GET['install'];
 
+if($service == "station" and $mac != "") {
+	if($action == "allow") {
+		$exec = "iptables -t nat -A PREROUTING -p tcp -m mac --mac-source $mac -j MARK --set-mark 99";
+	} else {
+		$exec = "iptables -t nat -D PREROUTING -p tcp -m mac --mac-source $mac -j MARK --set-mark 99";
+	}
+	exec_fruitywifi($exec);
+	
+	header("Location: ../index.php?tab=1");
+	exit;
+}
+
 if($service == "captive") {
     
     if ($action == "start") {
@@ -63,47 +75,65 @@ if($service == "captive") {
 			exec_fruitywifi($exec);
         }
         
+		if ($mod_captive_block == "ALL") {
 				
-		//REPLACE IFACE_INTERNET              
-		$exec = "$bin_sed -i 's/^IFACE_INTERNET=.*/IFACE_INTERNET=\\\"".$io_out_iface."\\\"/g' ../www.captive/includes/iptables";
-		exec_fruitywifi($exec);
-		
-		//REPLACE IFACE_WIFI              
-		$exec = "$bin_sed -i 's/^IFACE_WIFI=.*/IFACE_WIFI=\\\"".$io_in_iface."\\\"/g' ../www.captive/includes/iptables";
-		exec_fruitywifi($exec);
-		
-		//REPLACE IFACE_IP              
-		$exec = "$bin_sed -i 's/^IFACE_IP=.*/IFACE_IP=\\\"".$io_in_ip."\\\"/g' ../www.captive/includes/iptables";
-		exec_fruitywifi($exec);
-		
-		
-        # Masquerade any incoming packet on the firewall
-        $exec = "$bin_iptables -A POSTROUTING -t nat -o $io_out_iface -j MASQUERADE";
-		exec_fruitywifi($exec);
-        
-        # Create a new chain named 'internet' in mangle table with this command
-        $exec = "$bin_iptables -t mangle -N internet";
-		exec_fruitywifi($exec);
-        
-        # Send all HTTP traffic from WIFI to the newly created chain for further processing
-        $exec = "$bin_iptables -t mangle -A PREROUTING -i $io_action -p tcp -m tcp --dport 80 -j internet";
-		exec_fruitywifi($exec);
-        $exec = "$bin_iptables -t mangle -A PREROUTING -i $io_action -p tcp -m tcp --dport 443 -j internet";
-		exec_fruitywifi($exec);
-        
-        # Mark all traffic from internet chain with 99
-        $exec = "$bin_iptables -t mangle -A internet -j MARK --set-mark 99";
-		exec_fruitywifi($exec);
-        
-        # Redirect all marked traffic to the portal 
-        $exec = "$bin_iptables -t nat -A PREROUTING -i $io_action -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination $io_in_ip";
-		exec_fruitywifi($exec);
-        $exec = "$bin_iptables -t nat -A PREROUTING -i $io_action -p tcp -m mark --mark 99 -m tcp --dport 443 -j DNAT --to-destination $io_in_ip";
-		exec_fruitywifi($exec);
-
-        # FORWARD
-        $exec = "echo '1' > /proc/sys/net/ipv4/ip_forward";
-		exec_fruitywifi($exec);
+			//REPLACE IFACE_INTERNET              
+			$exec = "$bin_sed -i 's/^IFACE_INTERNET=.*/IFACE_INTERNET=\\\"".$io_out_iface."\\\"/g' ../www.captive/includes/iptables";
+			exec_fruitywifi($exec);
+			
+			//REPLACE IFACE_WIFI              
+			$exec = "$bin_sed -i 's/^IFACE_WIFI=.*/IFACE_WIFI=\\\"".$io_in_iface."\\\"/g' ../www.captive/includes/iptables";
+			exec_fruitywifi($exec);
+			
+			//REPLACE IFACE_IP              
+			$exec = "$bin_sed -i 's/^IFACE_IP=.*/IFACE_IP=\\\"".$io_in_ip."\\\"/g' ../www.captive/includes/iptables";
+			exec_fruitywifi($exec);
+			
+			
+			# Masquerade any incoming packet on the firewall
+			$exec = "$bin_iptables -A POSTROUTING -t nat -o $io_out_iface -j MASQUERADE";
+			exec_fruitywifi($exec);
+			
+			# Create a new chain named 'internet' in mangle table with this command
+			$exec = "$bin_iptables -t mangle -N internet";
+			exec_fruitywifi($exec);
+			
+			# Send all HTTP traffic from WIFI to the newly created chain for further processing
+			$exec = "$bin_iptables -t mangle -A PREROUTING -i $io_action -p tcp -m tcp --dport 80 -j internet";
+			exec_fruitywifi($exec);
+			$exec = "$bin_iptables -t mangle -A PREROUTING -i $io_action -p tcp -m tcp --dport 443 -j internet";
+			exec_fruitywifi($exec);
+			
+			# Mark all traffic from internet chain with 99
+			$exec = "$bin_iptables -t mangle -A internet -j MARK --set-mark 99";
+			exec_fruitywifi($exec);
+			
+			# Redirect all marked traffic to the portal 
+			$exec = "$bin_iptables -t nat -A PREROUTING -i $io_action -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination $io_in_ip";
+			exec_fruitywifi($exec);
+			$exec = "$bin_iptables -t nat -A PREROUTING -i $io_action -p tcp -m mark --mark 99 -m tcp --dport 443 -j DNAT --to-destination $io_in_ip";
+			exec_fruitywifi($exec);
+			
+			# FORWARD
+			$exec = "echo '1' > /proc/sys/net/ipv4/ip_forward";
+			exec_fruitywifi($exec);
+		} else if ($mod_captive_block == "80") {
+			$script_path = "/usr/share/fruitywifi/conf/dnsmasq-dhcp-script.sh";
+			$exec = "sed -i '/^iptables -t nat -A PREROUTING/d' $script_path";
+			exec_fruitywifi($exec);
+			$exec = "echo 'iptables -t nat -A PREROUTING -p tcp -m mac --mac-source \\\$2 --dport 80 -j DNAT --to-destination $io_in_ip:80' >> $script_path";
+			//$exec = "echo 'iptables -t nat -A PREROUTING -p tcp -m mac --mac-source \\\$2 --dport 80 -j DNAT --to-destination $io_in_ip' >> $script_path";
+			exec_fruitywifi($exec);
+		} else if ($mod_captive_block == "open") {
+			$script_path = "/usr/share/fruitywifi/conf/dnsmasq-dhcp-script.sh";
+			$exec = "sed -i '/^iptables -t nat -A PREROUTING/d' $script_path";
+			exec_fruitywifi($exec);
+			$exec = "echo 'iptables -t nat -A PREROUTING -p tcp -m mac --mac-source \\\$2 --dport 80 -j DNAT --to-destination $io_in_ip:80' >> $script_path";
+			exec_fruitywifi($exec);
+		} else if ($mod_captive_block == "close") {			
+			$exec = "$bin_iptables -t nat -A PREROUTING -i $io_in_iface -p tcp -m mark ! --mark 99 -m tcp -m multiport --dports 80,443 -j DNAT --to-destination $io_in_ip";
+			exec_fruitywifi($exec);
+		}
         
         // INCLUDE INDEX
 		if (!file_exists("/var/www/index.php")) {
@@ -136,31 +166,53 @@ if($service == "captive") {
         $exec = "sed -i '/FruityWifi-Captive/d' /var/www/index.php";
 		exec_fruitywifi($exec);
 
-        # Send all HTTP traffic from WIFI to the newly created chain for further processing
-        $exec = "$bin_iptables -t mangle -D PREROUTING -i $io_action -p tcp -m tcp --dport 80 -j internet";
-		exec_fruitywifi($exec);
-        $exec = "$bin_iptables -t mangle -D PREROUTING -i $io_action -p tcp -m tcp --dport 443 -j internet";
-		exec_fruitywifi($exec);
-        
-        # Mark all traffic from internet chain with 99
-        $exec = "$bin_iptables -t mangle -D internet -j MARK --set-mark 99";
-		exec_fruitywifi($exec);
-        
-        # Redirect all marked traffic to the portal 
-        $exec = "$bin_iptables -t nat -D PREROUTING -i $io_action -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination $io_in_ip";
-		exec_fruitywifi($exec);
-        $exec = "$bin_iptables -t nat -D PREROUTING -i $io_action -p tcp -m mark --mark 99 -m tcp --dport 443 -j DNAT --to-destination $io_in_ip";
-		exec_fruitywifi($exec);
-        
-        // DELETE ALLOWED MAC RULES
-        $exec = "$bin_iptables -t mangle -L --line-numbers | grep RETURN | $bin_awk '{print $1}'";
-		$output = exec_fruitywifi($exec);
-
-        for ($i=0; $i < count($output); $i++) {
-            $exec = "$bin_iptables -t mangle -D internet 1";
+		if ($mod_captive_block == "ALL") {
+			# Send all HTTP traffic from WIFI to the newly created chain for further processing
+			$exec = "$bin_iptables -t mangle -D PREROUTING -i $io_action -p tcp -m tcp --dport 80 -j internet";
+			exec_fruitywifi($exec);
+			$exec = "$bin_iptables -t mangle -D PREROUTING -i $io_action -p tcp -m tcp --dport 443 -j internet";
+			exec_fruitywifi($exec);
+			
+			# Mark all traffic from internet chain with 99
+			$exec = "$bin_iptables -t mangle -D internet -j MARK --set-mark 99";
+			exec_fruitywifi($exec);
+			
+			# Redirect all marked traffic to the portal 
+			$exec = "$bin_iptables -t nat -D PREROUTING -i $io_action -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination $io_in_ip";
+			exec_fruitywifi($exec);
+			$exec = "$bin_iptables -t nat -D PREROUTING -i $io_action -p tcp -m mark --mark 99 -m tcp --dport 443 -j DNAT --to-destination $io_in_ip";
+			exec_fruitywifi($exec);
+			
+			// DELETE ALLOWED MAC RULES
+			$exec = "$bin_iptables -t mangle -L --line-numbers | grep RETURN | $bin_awk '{print $1}'";
 			$output = exec_fruitywifi($exec);
-        }
-        
+	
+			for ($i=0; $i < count($output); $i++) {
+				$exec = "$bin_iptables -t mangle -D internet 1";
+				$output = exec_fruitywifi($exec);
+			}
+		} else if ($mod_captive_block == "80") {
+			$script_path = "/usr/share/fruitywifi/conf/dnsmasq-dhcp-script.sh";
+			$exec = "sed -i '/^iptables -t nat -A PREROUTING/d' $script_path";
+			exec_fruitywifi($exec);
+		} else if ($mod_captive_block == "open") {
+			$script_path = "/usr/share/fruitywifi/conf/dnsmasq-dhcp-script.sh";
+			$exec = "sed -i '/^iptables -t nat -A PREROUTING/d' $script_path";
+			exec_fruitywifi($exec);
+		} else if ($mod_captive_block == "close") {			
+			$exec = "$bin_iptables -t nat -D PREROUTING -i $io_in_iface -p tcp -m mark ! --mark 99 -m tcp -m multiport --dports 80,443 -j DNAT --to-destination $io_in_ip";
+			exec_fruitywifi($exec);
+			
+			$exec = "$bin_iptables -t nat -L | grep -iEe 'MARK.+MAC' | awk '{print \\\$7}'";
+			$output = exec_fruitywifi($exec);
+			
+			for ($i=0; $i < sizeof($output); $i++) {
+				$mac = $output[$i];
+				$exec = "$bin_iptables -t nat -D PREROUTING -p tcp -m mac --mac-source $mac -j MARK --set-mark 99";
+				exec_fruitywifi($exec);
+			}
+		}
+		
         // CLEAN USERS FILE
         $exec = "echo '-' > $file_users";
 		exec_fruitywifi($exec);
@@ -203,7 +255,7 @@ if ($service == "users" and $mac != "") {
 	
     } 
     
-    header('Location: ../index.php?tab=1');
+    header('Location: ../index.php?tab=2');
     exit;
 }
 

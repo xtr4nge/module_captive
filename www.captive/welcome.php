@@ -1,66 +1,62 @@
-<? 
+<?php
 /*
-	Copyright (C) 2013-2015 xtr4nge [_AT_] gmail.com
+    Copyright (C) 2013-2016 xtr4nge [_AT_] gmail.com
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */ 
 ?>
-
-<? print_header() ?>
-<? $site_name = "Free Wifi Zone"; ?>
-<h1>Welcome to <?php echo $site_name;?></h1>
-<div style="background-color:#304E87;width:300px; height:20px;" align="left">&nbsp;&nbsp;<img src="includes/wifi-zone.png" height="34px"></div>
-<div style="background-color:#EFEFEF; width:300px; height:100px" align="center">
-<br><br>
-Enjoy!
-<br>
-
-</div>
-
-<script type="text/javascript">
-function delayer(){
-    //window.location = "<?=$_GET['site']?>"
-}
-
-//setTimeout('delayer()', 4000)
-
-</script>
+<?php
+header("Expires: Mon, 1 Jan 1900 00:00:00 GMT");
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Cache-Control: no-store, no-cache, must-revalidate");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+?>
+<?php
+include "/usr/share/fruitywifi/www/config/config.php";
+include "/usr/share/fruitywifi/www/modules/captive/_info_.php";
+include "/usr/share/fruitywifi/www/functions.php";
+include "_portal_functions.php";
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome</title>
+<meta name="viewport" content="target-densitydpi=device-dpi">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+<link rel="shortcut icon" href="wifi.ico" type="image/x-icon" />
 </head>
 
-<? print_footer(); ?>
+<style>	
+	html, body {
+		margin: 0;
+		height: 100%;
+		overflow: auto;
+	}
+</style>
+<body>
+	
+<iframe src="<?=$mod_captive_template;?>/register.php" width="100%" height="100%" frameborder="0" scrolling="no">
+	
+</iframe>
 
 <?
-// Function to print page header
-function print_header() {
+// ----- INJECT PAYLOAD -----
+if ($mod_captive_inject == "1") injectPayload();
 
-  ?>
-    <html>
-    <head><title>Welcome to <?php echo $site_name;?></title>
-    <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
-    <meta name = "viewport" content = "user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width /">
-    <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <LINK rel="stylesheet" type="text/css" href="includes/style.css">
-    </head>
-
-  <body bgcolor=#FFFFFF text=000000>
-  <?php
-}
-
-// Function to print page footer
-function print_footer() {
-  echo "</body>";
-  echo "</html>";
-
-}
+// ----- INJECT RECON -----
+if ($mod_captive_recon == "1") injectRecon();
 ?>
+</body>
+</html>
