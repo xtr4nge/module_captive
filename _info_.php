@@ -1,6 +1,6 @@
 <?
 $mod_name="captive";
-$mod_version="1.6";
+$mod_version="1.7";
 $mod_path="/usr/share/fruitywifi/www/modules/$mod_name";
 $mod_logs="$log_path/captive.log"; 
 $mod_logs_history="$mod_path/includes/logs/";

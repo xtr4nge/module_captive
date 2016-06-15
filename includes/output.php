@@ -43,6 +43,20 @@ if ($regex == 1) {
 
 <?
 
+function sec_cleanHTML($var) {
+	$var = str_replace("'", "", $var);
+	//return htmlentities($var);
+    return htmlspecialchars($var);
+}
+
+function sec_cleanTAGS($var) {
+	$var = strip_tags($var);
+	$var = str_replace("'", "", $var);
+	$var = str_replace("\"", "", $var);
+	$var = str_replace(";", "", $var);
+	return strip_tags($var);
+}
+
 function getDetails() {
     global $db_path;
     // Create (connect to) SQLite database in file
@@ -67,11 +81,11 @@ function getDetails() {
                 <td><b>plugins</b></td>
             </tr>";
     foreach($rowarray as $row) {
-        $p_id = $row["id"];
-        $p_remote_addr = $row["remote_addr"]; // user_agent, remote_addr, remote_mac, time
-        $p_remote_mac = $row["remote_mac"];
-        $p_user_agent = $row["user_agent"];
-        $p_time = $row["time"];
+        $p_id = sec_cleanHTML($row["id"]);
+        $p_remote_addr = sec_cleanHTML($row["remote_addr"]); // user_agent, remote_addr, remote_mac, time
+        $p_remote_mac = sec_cleanHTML($row["remote_mac"]);
+        $p_user_agent = sec_cleanHTML($row["user_agent"]);
+        $p_time = sec_cleanHTML($row["time"]);
         echo "<tr>
             <td style='b-ackground-color:#DDD; padding-right:10px' nowrap>$p_time</td>
             <td style='b-ackground-color:#DDD; padding-right:10px' nowrap>$p_remote_addr</td>
@@ -111,11 +125,11 @@ function getClientDetails($id_details) {
             </tr>";
     */
     foreach($rowarray as $row) {
-        $p_id = $row["id"];
-        $p_remote_addr = $row["remote_addr"]; // user_agent, remote_addr, remote_mac, time
-        $p_remote_mac = $row["remote_mac"];
-        $p_user_agent = $row["user_agent"];
-        $p_time = $row["time"];
+        $p_id = sec_cleanHTML($row["id"]);
+        $p_remote_addr = sec_cleanHTML($row["remote_addr"]); // user_agent, remote_addr, remote_mac, time
+        $p_remote_mac = sec_cleanHTML($row["remote_mac"]);
+        $p_user_agent = sec_cleanHTML($row["user_agent"]);
+        $p_time = sec_cleanHTML($row["time"]);
         /*
         echo "<div>";
         echo "<b>time:</b> " . $p_time . "<br>";
@@ -180,11 +194,11 @@ function getPlugins($id_details) {
                 <td><b>version</b></td>
             </tr>";
     foreach($rowarray as $row) {
-        $p_name = $row["name"];
-        $p_filename = $row["filename"];
-        $p_description = $row["description"];
-        $p_version = $row["version"];
-        $p_time = $row["time"];
+        $p_name = sec_cleanHTML($row["name"]);
+        $p_filename = sec_cleanHTML($row["filename"]);
+        $p_description = sec_cleanHTML($row["description"]);
+        $p_version = sec_cleanHTML($row["version"]);
+        $p_time = sec_cleanHTML($row["time"]);
         echo "<tr>
             <td style='b-ackground-color:#DDD; padding-right:10px' nowrap>$p_time</td>
             <td style='b-ackground-color:#DDD; padding-right:10px'>$p_name</td>
@@ -206,17 +220,17 @@ function sqlAddPlugins() {
     $file_db->setAttribute(PDO::ATTR_ERRMODE, 
                            PDO::ERRMODE_EXCEPTION);
     
-    $p_name = $_POST["p_name"];
-    $p_filename = $_POST["p_filename"];
-    $p_description = $_POST["p_description"];
-    $p_version = $_POST["p_version"];
-    $p_time = $_POST["p_time"];
+    $p_name = sec_cleanTAGS($_POST["p_name"]);
+    $p_filename = sec_cleanTAGS($_POST["p_filename"]);
+    $p_description = sec_cleanTAGS($_POST["p_description"]);
+    $p_version = sec_cleanTAGS($_POST["p_version"]);
+    $p_time = sec_cleanTAGS($_POST["p_time"]);
     
-    $p_name = $_GET["p_name"];
-    $p_filename = $_GET["p_filename"];
-    $p_description = $_GET["p_description"];
-    $p_version = $_GET["p_version"];
-    $p_time = $_GET["p_time"];
+    $p_name = sec_cleanTAGS($_GET["p_name"]);
+    $p_filename = sec_cleanTAGS($_GET["p_filename"]);
+    $p_description = sec_cleanTAGS($_GET["p_description"]);
+    $p_version = sec_cleanTAGS($_GET["p_version"]);
+    $p_time = sec_cleanTAGS($_GET["p_time"]);
     
     $sql = "INSERT INTO plugins 
             (name, filename, description, version, time) 
@@ -230,9 +244,9 @@ function sqlAddPlugins() {
 
 function fileAction() {
     
-    $p_user_agent = $_POST["p_user_agent"];
-    $p_remote_addr = $_POST["p_remote_addr"];
-    $p_remote_mac = $_POST["p_remote_mac"];
+    $p_user_agent = sec_cleanTAGS($_POST["p_user_agent"]);
+    $p_remote_addr = sec_cleanTAGS($_POST["p_remote_addr"]);
+    $p_remote_mac = sec_cleanTAGS($_POST["p_remote_mac"]);
     
     $myFile = "save.txt";
     $fh = fopen($myFile, 'a') or die("can't open file");
@@ -260,8 +274,8 @@ function searchClient() {
     print_r($result);
 }
 
-$type = $_GET["type"];
-$id_details = $_GET["id_details"];
+$type = sec_cleanTAGS($_GET["type"]);
+$id_details = sec_cleanTAGS($_GET["id_details"]);
 
 echo "<style> html, body { background-color: #EEE; } table, tr, td { font-size: 11px; font-family: monospace, Courier, Arial, Tahoma, Geneva, sans-serif } </style>";
 
