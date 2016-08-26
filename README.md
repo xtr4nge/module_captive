@@ -3,6 +3,12 @@ module_captive
 
 FruityWifi captive portal module
 
+
+v1.8
+---------------------------------
+- PHP7 compatibility issues has been fixed
+
+
 v1.6
 ---------------------------------
 - FruityWifi v2.4 is required
