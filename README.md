@@ -4,6 +4,17 @@ module_captive
 FruityWifi captive portal module
 
 
+v1.9
+---------------------------------
+- JSON DB File has been added
+- SQLITE DB has been removed
+- OPEN|CLOSE mode has been added
+- OPEN mode requires AP module v1.5
+- OPEN mode is compatible with NetHunter
+- About tab has been added
+- More details about clients have been adeed to the JSON
+
+
 v1.8
 ---------------------------------
 - PHP7 compatibility issues has been fixed

@@ -49,12 +49,26 @@ function getMacAddress($p_ip) {
     return $output[0];
 }
 
+
+function getStationHostname($p_ip) {
+    $path = "/usr/share/fruitywifi/logs/dhcp.leases";
+    
+    $exec = "grep '$p_ip' $path | awk {'print $4'}";
+    exec($exec, $output);
+
+    return $output[0];
+}
+
+
 echo "<br><br>";
 $v_ip =  getIP();
 echo $v_ip;
 echo "<br>";
 $v_mac = getMAC($v_ip);
 echo $v_mac;
+echo "<br>";
+$v_hostname = getStationHostname($v_ip);
+echo $v_hostname;
 
 echo "<br>";
 echo "<br>";
@@ -163,7 +177,7 @@ function getPlugins(id_details) {
 
 //getPlugins("test")
 
-function getData(v_ip, v_mac) {
+function getData(v_ip, v_mac, v_hostname) {
 	/*
 	data = navigator
 	data.ip = v_ip;
@@ -202,6 +216,7 @@ function getData(v_ip, v_mac) {
 	data.plugins = JSON.stringify(plugins)
 	data.ip = v_ip;
 	data.mac = v_mac;
+	data.hostname = v_hostname;
 	
 	console.log(JSON.parse(JSON.stringify(data)))
 	
@@ -227,6 +242,6 @@ function getData(v_ip, v_mac) {
 	
 }
 
-getData('<?=$v_ip?>', '<?=$v_mac?>');
+getData('<?=$v_ip?>', '<?=$v_mac?>', '<?=$v_hostname?>');
 
 </script>

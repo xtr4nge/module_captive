@@ -30,14 +30,13 @@ include "../../login_check.php";
 <link rel="stylesheet" href="../css/style.css" />
 <link rel="stylesheet" href="../../../style.css" />
 
-<script src="includes/scripts.js?4"></script>
+<script src="includes/scripts.js?<?=time();?>"></script>
 
 <script>
 $(function() {
     $( "#action" ).tabs();
     $( "#result" ).tabs();
 });
-
 </script>
 
 </head>
@@ -81,7 +80,7 @@ if ($_POST["change_mode"] == "1") {
     exec_fruitywifi($exec);
 }
 
-include "includes/options_config.php";
+//include "includes/options_config.php";
 
 ?>
 
@@ -109,15 +108,17 @@ include "includes/options_config.php";
     ?>
     
     <?
+    
     if ($mod_captive_block == "ALL") {
         $exec = "$bin_iptables -t mangle -L|grep -iEe 'internet.+anywhere'";
         $ismoduleup = exec_fruitywifi($exec);
         $ismoduleup = $ismoduleup[0];
         //$ismoduleup = exec("ps auxww | grep ngrep | grep -v -e 'grep ngrep'");
-    } else if ($mod_captive_block == "80") {
-        $exec = "grep -iEe '^iptables -t nat -A PREROUTING' /usr/share/fruitywifi/conf/dnsmasq-dhcp-script.sh";
+    } else if ($mod_captive_block == "open") {
+        $exec = "grep -iEe '^iptables -t nat -A PREROUTING' $mod_dnsmasq_dhcp_script_path";
         $ismoduleup = exec($exec);
     }
+    
     $ismoduleup = exec($mod_isup);
     if ($ismoduleup != "") {
         echo "&nbsp; Captive  <font color='lime'><b>enabled</b></font>.&nbsp; | <a href='includes/module_action.php?service=captive&action=stop&page=module'><b>stop</b></a>";
@@ -139,11 +140,12 @@ Loading, please wait...
     <div id="result" class="module">
         <ul>
             <li><a href="#tab-output">Output</a></li>
-            <li><a href="#tab-users">Users</a></li>
+            <li><a href="#tab-clients">Clients</a></li>
             <li><a href="#tab-options">Options</a></li>
             <li><a href="#tab-inject">Inject</a></li>
             <li><a href="#tab-db">DB</a></li>
             <li><a href="#tab-history">History</a></li>
+            <li><a href="#tab-about">About</a></li>
         </ul>
         <div id="tab-output">
             <form id="formLogs-Refresh" name="formLogs-Refresh" method="POST" autocomplete="off" action="index.php">
@@ -159,19 +161,19 @@ Loading, please wait...
                 $data = open_file($filename);
                 
                 // REVERSE
-                //$data_array = explode("\n", $data);
-                //$data = implode("\n",array_reverse($data_array));
+                $data_array = explode("\n", $data);
+                $data = implode("\n",array_reverse($data_array));
                 
             ?>
-            <textarea id="output" class="module-content" style="font-family: courier;"><?=htmlspecialchars($data)?></textarea>
+            <textarea id="output" class="module-content" style="font-family: monospace, courier;"><?=htmlspecialchars($data)?></textarea>
             <input type="hidden" name="type" value="logs">
             </form>
             
         </div>
         <!-- END OUTPUT -->
         
-        <!-- USERS -->
-        <div id="tab-users" class="history">
+        <!-- CLIENTS -->
+        <div id="tab-clients" class="history">
             
             <form action="?tab=1" method="GET">
                 <input type="hidden" name="tab" value="1">
@@ -234,43 +236,69 @@ Loading, please wait...
             }
             // echo json_encode($output); // FULL OUTPUT
             
-            $exec = "$bin_iptables -t nat -L | grep -iEe 'MARK.+MAC' | awk '{print \\\$7}'";
-			$output_captive = exec_fruitywifi($exec);
-			
             echo "<br>";
             
-            /*
-			for ($i=0; $i < sizeof($output_captive); $i++) {
-				$mac = $output_captive[$i];
-                echo "[x] .$mac. <br>";
-				//$exec = "$bin_iptables -t nat -D PREROUTING -p tcp -m mac --mac-source $mac -j MARK --set-mark 99";
-				//exec_fruitywifi($exec);
-			}
-            */
-            
-            for ($i=0; $i < sizeof($output); $i++) {
-                $mac = $output[$i]["station"];
-                if (in_array(strtoupper($output[$i]["station"]), $output_captive)) {
-                    $font_color = "green";
-                    $station_action = "<a href='includes/module_action.php?service=station&action=deny&mac=$mac' style='font-family:monospace'>[-]</a>";
-                } else {
-                    $font_color = "black";
-                    $station_action = "<a href='includes/module_action.php?service=station&action=allow&mac=$mac' style='font-family:monospace'>[+]</a>";
+            if ($mod_captive_block == "open") {
+                $exec = "$bin_iptables -t nat -L | grep -iEe 'DNAT.+MAC.+http' | awk '{print \\\$7}' | uniq";
+                $output_captive = exec_fruitywifi($exec);
+                
+                for ($i=0; $i < sizeof($output); $i++) {
+                    $mac = $output[$i]["station"];
+                    if (!in_array(strtoupper($output[$i]["station"]), $output_captive)) {
+                        $font_color = "green";
+                        $station_action = "<a href='includes/module_action.php?service=station&action=deny&mac=$mac' style='font-family:monospace'>[-]</a>";
+                    } else {
+                        $font_color = "black";
+                        $station_action = "<a href='includes/module_action.php?service=station&action=allow&mac=$mac' style='font-family:monospace'>[+]</a>";
+                    }
+                    
+                    echo "<div style='color:$font_color; font-family:monospace, courier;'> $station_action ";
+                    echo $output[$i]["station"];
+                    echo " | ";
+                    echo $output[$i]["ip"];
+                    echo " | ";
+                    echo $output[$i]["hostname"];
+                    echo "</div>";
                 }
                 
+            } else {
                 
-                echo "<div style='color:$font_color; font-family:monospace'> $station_action ";
-                echo $output[$i]["station"];
-                echo " | ";
-                echo $output[$i]["ip"];
-                echo " | ";
-                echo $output[$i]["hostname"];
-                echo "</div>";
+                $exec = "$bin_iptables -t nat -L | grep -iEe 'MARK.+MAC' | awk '{print \\\$7}'";
+                $output_captive = exec_fruitywifi($exec);
+                
+                /*
+                for ($i=0; $i < sizeof($output_captive); $i++) {
+                    $mac = $output_captive[$i];
+                    echo "[x] .$mac. <br>";
+                    //$exec = "$bin_iptables -t nat -D PREROUTING -p tcp -m mac --mac-source $mac -j MARK --set-mark 99";
+                    //exec_fruitywifi($exec);
+                }
+                */
+                
+                for ($i=0; $i < sizeof($output); $i++) {
+                    $mac = $output[$i]["station"];
+                    if (in_array(strtoupper($output[$i]["station"]), $output_captive)) {
+                        $font_color = "green";
+                        $station_action = "<a href='includes/module_action.php?service=station&action=deny&mac=$mac' style='font-family:monospace'>[-]</a>";
+                    } else {
+                        $font_color = "black";
+                        $station_action = "<a href='includes/module_action.php?service=station&action=allow&mac=$mac' style='font-family:monospace'>[+]</a>";
+                    }
+                    
+                    
+                    echo "<div style='color:$font_color; font-family:monospace, courier;'> $station_action ";
+                    echo $output[$i]["station"];
+                    echo " | ";
+                    echo $output[$i]["ip"];
+                    echo " | ";
+                    echo $output[$i]["hostname"];
+                    echo "</div>";
+                }
             }
             ?>
                         
         </div>
-        <!-- END USERS -->
+        <!-- END CLIENTS -->
         
         <!-- OPTIONS -->
         <div id="tab-options" class="history">
@@ -279,6 +307,20 @@ Loading, please wait...
                 Captive Portal Options
             </h4>
             <h5>
+                
+                Mode
+                <br>
+                <div class="btn-group btn-group-sm" data-toggle="buttons">
+                    <label class="btn btn-default <? if ($mod_captive_block == "open") echo "active" ?>">
+                      <input type="radio" name="mod_captive_block" id="open" autocomplete="off" checked> Open
+                    </label>
+                    <label class="btn btn-default <? if ($mod_captive_block == "close") echo "active" ?>">
+                      <input type="radio" name="mod_captive_block" id="close" autocomplete="off"> Close
+                    </label>
+                </div>
+                
+                <br><br>
+                
                 <input id="captive_site" type="checkbox" name="my-checkbox" <? if ($mod_captive_site == "1") echo "checked"; ?> onclick="setCheckbox(this, 'mod_captive_site')" > Portal URL
                 <br>
                 <input id="captive_site_value" class="form-control input-sm" placeholder="URL" value="<?=$mod_captive_site_value?>" style="width: 200px; display: inline-block; " type="text" />
@@ -369,7 +411,7 @@ Loading, please wait...
                 $data = open_file($filename);
                 
             ?>
-            <textarea id="inject" name="newdata" class="module-content" style="font-family: courier;"><?=htmlspecialchars($data)?></textarea>
+            <textarea id="inject" name="newdata" class="module-content" style="font-family: monospace, courier;"><?=htmlspecialchars($data)?></textarea>
             <input type="hidden" name="type" value="inject">
             </form>
         </div>
@@ -377,12 +419,103 @@ Loading, please wait...
         
         <!-- DB -->
         
-        <div id="tab-db">
+        <div id="tab-db" class="history">
             <form id="formLogs-Refresh" name="formLogs-Refresh" method="POST" autocomplete="off" action="index.php?tab=4">
                 <input type="submit" value="refresh">
             </form>
             <br>
-            <iframe class="module-options" style="width:97%; height:200px; background-color: #EEE" border=0 src="includes/output.php"></iframe>
+            <!--<iframe class="module-options" style="width:97%; height:200px; background-color: #EEE" border=0 src="includes/output.php"></iframe>-->
+            <style>
+                .db_row {
+                    padding: 2px;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    b-order-bottom: 1px solid #ddd;
+                    b-order-right: 1px solid #ddd;
+                    font-size: 11px;
+                    font-family: monospace, courier;
+                }
+                .db_row a {
+                    text-decoration: underline;
+                }
+                .db_row a:hover {
+                    text-decoration: none;
+                }
+                .db_title {
+                    font-weight: bold;
+                }
+            </style>
+            <?
+            //$json_file = "/tmp/captiveJSON.txt";
+            
+            $object = [];
+            
+            $lines = file($json_file);
+            $lines = array_reverse($lines); // SORT NEW->OLD
+            //foreach(file($json_file) as $line) {
+            foreach($lines as $line) {
+                $data = str_replace("\n","",$line);
+                $data = json_decode($data);
+                $temp_details = [];
+                foreach($data as $key=>$value) {
+                    if ($key == "plugins") {
+                        $plugins = json_decode($value, true);
+                        $temp_plugins = [];
+                        for ($i=0; $i < count($plugins); $i++) {
+                            $temp_plugins[] = $plugins[$i];
+                        }
+                        $temp_details[$key] = $temp_plugins;
+                    } else {
+                        $temp_details[$key] = $value;
+                    }
+                }
+                $output[] = $temp_details;
+            }
+            
+            function showDB($output) {
+                echo "
+                    <table>
+                        <tr>
+                            <td class='db_row db_title'></td>
+                            <td class='db_row db_title'>Date</td>
+                            <td class='db_row db_title'>IP</td>
+                            <td class='db_row db_title'>MAC</td>
+                            <td class='db_row db_title'>Plugin</td>
+                            <td class='db_row db_title'>Platform</td>
+                        </tr>
+                    ";
+                    
+                for ($i=0; $i < count($output); $i++) {
+                    $v_id = $output[$i]["id"];
+                    $v_date = $output[$i]["date"];
+                    $v_ip = $output[$i]["ip"];
+                    $v_mac = $output[$i]["mac"];
+                    $v_num_plugins = count($output[$i]["plugins"]);
+                    $v_platform = $output[$i]["platform"];
+                    if ($v_id != "") {
+                        echo "<tr>";
+                        echo "  <td class='db_row'><a href='includes/module_action.php?db_id=$v_id'>x</a></td>";
+                        echo "  <td class='db_row'>$v_date</td>";
+                        echo "  <td class='db_row'><a href='#' onclick='PopupData(\"details\",\"$v_id\")'>$v_ip</a></td>";
+                        echo "  <td class='db_row'>$v_mac</td>";
+                        if ($v_num_plugins > 0) {
+                            echo "  <td align='center' class='db_row'><a href='#' onclick='PopupData(\"plugins\",\"$v_id\")'><b>$v_num_plugins</b></a></td>";
+                        } else {
+                            echo "  <td align='center' class='db_row'>$v_num_plugins</td>";
+                        }
+                        echo "  <td class='db_row'>$v_platform</td>";
+                        echo "</tr>";
+                    }
+                }
+                echo "</table>";
+            }
+            //showDB($output);
+            
+            ?>
+            
+            <div class='module-content' style="overflow:scroll; font-family: monospace, courier;">
+                <? showDB($output); ?>
+            </div>
             
         </div>
         
@@ -408,6 +541,18 @@ Loading, please wait...
             ?>
             
         </div>
+        
+        <!-- END HISTORY -->
+        
+        <!-- ABOUT -->
+        
+        <div id="tab-about" class="history">
+            
+            <? include "includes/about.php"; ?>
+            
+        </div>
+        
+        <!-- END ABOUT -->
         
     </div>
 
@@ -457,6 +602,15 @@ Loading, please wait...
         $.getJSON('../api/includes/ws_action.php?api=/config/module/captive/'+param+'/'+value, function(data) {});
     }); 
 </script>
-
+<script type="text/javascript"> 
+function PopupData(type, json_id) {
+    if (type == 'details') {
+        window.open( "includes/show_output.php?type="+type+"&json_id="+json_id, "CaptiveDB", "resizable=1,height=250,width=500"); 
+    } else if (type == 'plugins') {
+        window.open( "includes/show_output.php?type="+type+"&json_id="+json_id, "CaptiveDB", "resizable=1,height=250,width=500");
+    }
+    
+} 
+</script> 
 </body>
 </html>

@@ -1,6 +1,6 @@
 <?
 $mod_name="captive";
-$mod_version="1.8";
+$mod_version="1.9";
 $mod_path="/usr/share/fruitywifi/www/modules/$mod_name";
 $mod_logs="$log_path/captive.log"; 
 $mod_logs_history="$mod_path/includes/logs/";
@@ -9,11 +9,10 @@ $mod_panel="show";
 //$mod_isup="sudo \"/sbin/iptables -t mangle -L|grep -iEe 'internet.+anywhere'\"";
 //$mod_isup="sudo /sbin/iptables -t mangle -L|grep -iEe 'internet.+anywhere'";
 //$mod_isup="grep -iEe '^iptables -t nat -A PREROUTING' /usr/share/fruitywifi/conf/dnsmasq-dhcp-script.sh";
-$mod_isup="sudo /sbin/iptables -t nat -L|grep -iEe 'mark match ! 0x63'";
 $mod_alias="Captive";
 
 # OPTIONS
-$mod_captive_block="close";
+$mod_captive_block="open";
 $mod_captive_portal_name="Free WiFi Zone";
 $mod_captive_policy="1";
 $mod_captive_welcome="1";
@@ -31,6 +30,9 @@ $mod_captive_redirect_change_www="1";
 $mod_captive_redirect_timestamp="1";
 $mod_captive_redirect="1";
 $mod_captive_redirect_value="www.example.com";
+
+# OTHER
+$mod_dnsmasq_dhcp_script_path="/usr/share/fruitywifi/www/modules/ap/includes/dnsmasq-dhcp-script.sh";
 
 # EXEC
 $bin_sudo = "/usr/bin/sudo";
@@ -51,8 +53,16 @@ $mod_portal_redirect_url="";
 $mod_portal_policy="1";
 $mod_portal_thanks="1";
 
+# DB
+$json_file = "$mod_path/includes/captive_db.json";
+
 # FILE
 //$file_users = "/var/www/site/captive/admin/users";
 $file_users = "/var/www/captive/admin/users";
 $portal_name="Free WiFi Zone";
+
+# MOD ISUP
+$mod_isup_close="sudo /sbin/iptables -t nat -L|grep -iEe 'mark match ! 0x63'";
+$mod_isup_open="grep -iEe '^iptables -t nat -A PREROUTING' $mod_dnsmasq_dhcp_script_path";
+$mod_isup=$mod_isup_open;
 ?>

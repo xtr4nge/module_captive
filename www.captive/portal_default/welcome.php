@@ -93,6 +93,8 @@ if( $ip != "" and $mac != "" ) {
 			$exec = "$bin_iptables -t nat -D PREROUTING -p tcp -m mac --mac-source $mac --dport 80 -j DNAT --to-destination $io_in_ip:80";
 			//$exec = "$bin_iptables -t nat -D PREROUTING -p tcp -m mac --mac-source $mac --dport 80 -j DNAT --to-destination $io_in_ip";
 			exec_fruitywifi($exec);
+			$exec = "$bin_iptables -t nat -D PREROUTING -p tcp -m mac --mac-source $mac --dport 443 -j DNAT --to-destination $io_in_ip:443";
+			exec_fruitywifi($exec);
 		}
         sleep(1);
 	} else if ($mod_captive_block == "close") { // DEFAULT AND ONLY METHOD ENABLED
@@ -115,7 +117,8 @@ if( $ip != "" and $mac != "" ) {
     exec_fruitywifi($exec);
     
     // ADD TO LOGS
-    $exec = "$bin_echo 'NEW: $user|$pass|$ip|$mac|".date("Y-m-d h:i:s")."' >> $mod_logs ";
+	$exec = "$bin_echo '".date("Y-m-d h:i:s")."|$mac|$ip|".basename($_SERVER['PHP_SELF'])."|$user|$pass|[NEW]' >> $mod_logs ";
+    //$exec = "$bin_echo 'NEW: $user|$pass|$ip|$mac|".date("Y-m-d h:i:s")."' >> $mod_logs ";
     exec_fruitywifi($exec);
 
 } else {
